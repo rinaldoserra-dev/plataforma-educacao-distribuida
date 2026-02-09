@@ -1,0 +1,27 @@
+﻿namespace PlataformaEducacao.Core.Messages.Integration
+{
+    public class IniciaPagamentoIntegrationEvent : IntegrationEvent
+    {
+        public IniciaPagamentoIntegrationEvent(Guid matriculaId, Guid cursoId, Guid alunoId, decimal valor, string nomeCartao, string numeroCartao, string expiracaoCartao, string cvvCartao)
+        {
+            AggregateId = matriculaId;
+            MatriculaId = matriculaId;
+            CursoId = cursoId;
+            AlunoId = alunoId;
+            Valor = valor;
+            NomeCartao = nomeCartao;
+            NumeroCartao = numeroCartao;
+            ExpiracaoCartao = expiracaoCartao;
+            CvvCartao = cvvCartao;
+        }
+
+        public Guid MatriculaId { get; private set; }
+        public Guid CursoId { get; private set; }
+        public Guid AlunoId { get; private set; }
+        public decimal Valor { get; private set; }
+        public string NomeCartao { get; private set; }
+        public string NumeroCartao { get; private set; }
+        public string ExpiracaoCartao { get; private set; }
+        public string CvvCartao { get; private set; }
+    }
+}
