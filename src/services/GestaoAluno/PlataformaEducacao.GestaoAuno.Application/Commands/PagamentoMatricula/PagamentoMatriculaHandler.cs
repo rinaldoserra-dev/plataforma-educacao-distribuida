@@ -57,19 +57,7 @@ namespace PlataformaEducacao.GestaoAluno.Application.Commands.PagamentoMatricula
 
             var pagamentoIniciado = new IniciaPagamentoIntegrationEvent(matricula.Id, matricula.CursoId, matricula.AlunoId, message.Total, message.NomeCartao, message.NumeroCartao, message.ExpiracaoCartao, message.CvvCartao);
 
-            var result = await _bus
-                .RequestAsync<IniciaPagamentoIntegrationEvent, ResponseMessage>(pagamentoIniciado);
-
-            if (!result.ValidationResult.IsValid)
-            {
-                foreach (var erro in result.ValidationResult.Errors)
-                {
-                    AdicionarErro(erro.ErrorMessage);
-                }
-                return ValidationResult;
-            }
-
-            matricula.Ativar();
+            await _bus.PublishAsync(pagamentoIniciado);
 
             return await PersistirDados(_alunoRepository.UnitOfWork);
         }

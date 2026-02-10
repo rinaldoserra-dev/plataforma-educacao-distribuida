@@ -1,4 +1,5 @@
 ﻿using PlataformaEducacao.Core.Utils;
+using PlataformaEducacao.GestaoAluno.Application.Services;
 using PlataformaEducacao.MessageBus;
 
 namespace PlataformaEducacao.GestaoAluno.Api.Configurations
@@ -8,7 +9,8 @@ namespace PlataformaEducacao.GestaoAluno.Api.Configurations
         public static IServiceCollection AddMessageBusConfiguration(this IServiceCollection services,
             IConfiguration configuration)
         {
-            services.AddMessageBus(configuration.GetMessageQueueConnection("MessageBus"));
+            services.AddMessageBus(configuration.GetMessageQueueConnection("MessageBus"))
+                .AddHostedService<RegistroAlunoIntegrationHandler>();
 
             return services;
         }

@@ -4,6 +4,7 @@
     {
         public UsuarioRegistradoIntegrationEvent(Guid usuarioId, string nome, string email)
         {
+            AggregateId = usuarioId;
             UsuarioId = usuarioId;
             Nome = nome;
             Email = email;

@@ -146,7 +146,7 @@ namespace PlataformaEducacao.GestaoIdentidade.Api.Controllers
                 UsuarioToken = new UsuarioToken
                 {
                     Id = user.Id,
-                    Email = user.Email,
+                    Email = user.Email!,
                     Claims = claims.Select(c => new UsuarioClaim { Type = c.Type, Value = c.Value })
                 }
             };
@@ -161,8 +161,6 @@ namespace PlataformaEducacao.GestaoIdentidade.Api.Controllers
 
             var usuarioRegistrado = new UsuarioRegistradoIntegrationEvent(Guid.Parse(usuario!.Id), usuarioRegistro.Nome, usuarioRegistro.Email);
 
-
-            return new ResponseMessage(new FluentValidation.Results.ValidationResult());
             try
             {
                 return await _bus.RequestAsync<UsuarioRegistradoIntegrationEvent, ResponseMessage>(usuarioRegistrado);
