@@ -1,4 +1,5 @@
 using PlataformaEducacao.GestaoAluno.Api.Configurations;
+using PlataformaEducacao.WebApi.Core.Identidade;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +9,7 @@ builder.Services
     .AddApiConfiguration()
     .AddSwaggerConfiguration()
     .AddDbContextConfig(builder.Configuration, builder.Environment)
+    .AddJwtConfiguration(builder.Configuration)
     .RegisterServices()
     .AddMessageBusConfiguration(builder.Configuration);
 

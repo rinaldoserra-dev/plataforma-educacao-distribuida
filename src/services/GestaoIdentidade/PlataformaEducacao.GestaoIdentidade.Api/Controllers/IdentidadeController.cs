@@ -50,6 +50,8 @@ namespace PlataformaEducacao.GestaoIdentidade.Api.Controllers
 
             if (result.Succeeded)
             {
+                await _userManager.AddToRoleAsync(user, "ALUNO");
+
                 var alunoResult = await RegistrarAluno(usuarioRegistro);
 
                 if (!alunoResult.ValidationResult.IsValid)
