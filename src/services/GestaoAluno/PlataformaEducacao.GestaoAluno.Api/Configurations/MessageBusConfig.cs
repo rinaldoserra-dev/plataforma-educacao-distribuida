@@ -12,6 +12,9 @@ namespace PlataformaEducacao.GestaoAluno.Api.Configurations
             services.AddMessageBus(configuration.GetMessageQueueConnection("MessageBus"))
                 .AddHostedService<RegistroAlunoIntegrationHandler>();
 
+            services.AddMessageBus(configuration.GetMessageQueueConnection("MessageBus"))
+                .AddHostedService<PagamentoMatriculaIntegrationHandler>();
+
             return services;
         }
     }
