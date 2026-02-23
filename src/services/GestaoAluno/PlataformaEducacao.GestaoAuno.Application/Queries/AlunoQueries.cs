@@ -74,5 +74,11 @@ namespace PlataformaEducacao.GestaoAluno.Application.Queries
                 PdfBytes = certificadoArquivo
             };
         }
+
+        public async Task<HistoricoAlunoViewModel?> ObterHistoricoAluno(Guid alunoId, CancellationToken cancellationToken)
+        {
+            var alunoComMatriculas = await _alunoRepository.ObterComMatriculasPorId(alunoId, cancellationToken);
+            return alunoComMatriculas is null ? null : HistoricoAlunoViewModel.FromAlunoComMatriculas(alunoComMatriculas);
+        }
     }
 }

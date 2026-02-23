@@ -11,5 +11,6 @@ namespace PlataformaEducacao.GestaoAluno.Application.Queries
         Task<IEnumerable<MatriculaViewModel>> ObterAlunosPendentesPorCursoId(Guid cursoId, CancellationToken cancellationToken);
         Task<CertificadoViewModel?> ValidarCertificado(string codigoVerificacao, CancellationToken cancellationToken);
         Task<ArquivoViewModel?> DownloadCertificado(Guid certificadoId, CancellationToken cancellationToken);
+        Task<HistoricoAlunoViewModel?> ObterHistoricoAluno(Guid alunoId, CancellationToken cancellationToken);
     }
 }
