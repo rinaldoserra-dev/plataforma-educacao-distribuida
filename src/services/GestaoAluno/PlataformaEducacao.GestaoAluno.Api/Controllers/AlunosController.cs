@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using PlataformaEducacao.Core.Mediator;
 using PlataformaEducacao.GestaoAluno.Api.Requests;
@@ -62,6 +61,7 @@ namespace PlataformaEducacao.GestaoAluno.Api.Controllers
 
             return CustomResponse(HttpStatusCode.OK, certificado);
         }
+
         [HttpGet("download-certificado/{certificadoId:guid}")]
         [AllowAnonymous]
         public async Task<ActionResult> DownloadCertificado(Guid certificadoId, CancellationToken cancellationToken)
@@ -74,6 +74,20 @@ namespace PlataformaEducacao.GestaoAluno.Api.Controllers
                 return CustomResponse();
             }
             return File(certificado.PdfBytes, certificado.ContentType, certificado.NomeArquivo);
+        }
+
+        [HttpGet("historico-aluno/{alunoId:guid}")]
+        [AllowAnonymous]
+        public async Task<ActionResult<HistoricoAlunoViewModel>> ObterHistoricoAluno(Guid alunoId, CancellationToken cancellationToken)
+        {
+            var historicoAluno = await _alunoQueries.ObterHistoricoAluno(alunoId, cancellationToken);
+
+            if (historicoAluno is null)
+            {
+                AdicionarErroProcessamento("Histórico de aluno não encontrado.");
+                return CustomResponse();
+            }
+            return historicoAluno;
         }
     }
 }
