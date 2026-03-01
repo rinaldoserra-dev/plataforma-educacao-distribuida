@@ -8,13 +8,16 @@ namespace PlataformaEducacao.Bff.Api.Controllers
 {
     [Authorize]
     [Route("alunos")]
-    public class GestaoAlunosController : MainController
+    public class GestaoAlunosController(IAlunosService alunosService) : MainController
     {
-        private readonly IAlunosService _alunosService;
+        private readonly IAlunosService _alunosService = alunosService;
 
-        public GestaoAlunosController(IAlunosService alunosService)
+        [HttpGet("matriculas-pendentes-pagamento")]
+        public async Task<ActionResult<IEnumerable<MatriculaPendentePagamentoDTO>>> ObterMatriculasPendentesPagamento()
         {
-            _alunosService = alunosService;
+            var matriculas = await _alunosService.ObterMatriculasPendentesPagamento();
+
+            return matriculas is null ? NotFound() : CustomResponse(matriculas);
         }
 
         [HttpPost("matricular")]

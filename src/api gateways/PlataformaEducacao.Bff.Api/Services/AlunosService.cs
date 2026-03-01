@@ -8,13 +8,15 @@ namespace PlataformaEducacao.Bff.Api.Services
     public interface IAlunosService
     {
         Task<ResponseResult> Matricular(MatricularDTO solicitarMatricula);
-
+        Task<ResponseResult> ObterMatriculasPendentesPagamento();
     }
+
     public class AlunosService : Service, IAlunosService
     {
         private readonly HttpClient _httpClient;
 
-        public AlunosService(HttpClient httpClient, IOptions<AppServicesSettings> settings)
+        public AlunosService(HttpClient httpClient, 
+                             IOptions<AppServicesSettings> settings)
         {
             _httpClient = httpClient;
             _httpClient.BaseAddress = new Uri(settings.Value.GestaoAlunosUrl);
@@ -25,6 +27,13 @@ namespace PlataformaEducacao.Bff.Api.Services
             var conteudoMatricular = ObterConteudo(matricular);
 
             var response = await _httpClient.PostAsync("/api/alunos/matricular", conteudoMatricular);
+
+            return await DeserializarObjetoResponse(response);
+        }
+
+        public async Task<ResponseResult> ObterMatriculasPendentesPagamento()
+        {
+            var response = await _httpClient.GetAsync("/api/alunos/matriculas-pendentes-pagamento");
 
             return await DeserializarObjetoResponse(response);
         }
