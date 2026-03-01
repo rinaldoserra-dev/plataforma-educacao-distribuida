@@ -5,6 +5,12 @@ namespace PlataformaEducacao.GestaoAluno.Application.Commands.MatricularAlunoCur
 {
     public class MatricularAlunoCursoCommand : Command
     {
+        public Guid CursoId { get; private set; }
+        public Guid AlunoId { get; private set; }
+        public string NomeCurso { get; private set; }
+        public decimal Valor { get; private set; }
+        public int TotalAulasCurso { get; private set; }
+
         public MatricularAlunoCursoCommand(Guid cursoId, Guid alunoId, string nomeCurso, int totalAulasCurso, decimal valor)
         {
             CursoId = cursoId;
@@ -14,36 +20,33 @@ namespace PlataformaEducacao.GestaoAluno.Application.Commands.MatricularAlunoCur
             Valor = valor;
         }
 
-        public Guid CursoId { get; private set; }
-
-        public Guid AlunoId { get; private set; }
-
-        public string NomeCurso { get; private set; }
-        public decimal Valor { get; private set; }
-
-        public int TotalAulasCurso { get; private set; }
-
         public override bool EhValido()
         {
             ValidationResult = new MatricularAlunoCursoCommandValidation().Validate(this);
             return ValidationResult.IsValid;
         }
+
+        public void VincularAluno(Guid guid)
+        {
+            AlunoId = guid;
+        }
     }
+
     public class MatricularAlunoCursoCommandValidation : AbstractValidator<MatricularAlunoCursoCommand>
     {
         public MatricularAlunoCursoCommandValidation()
         {
             RuleFor(a => a.AlunoId)
                 .NotEmpty()
-                .WithMessage("Aluno é obrigatório");
+                .WithMessage("O id do aluno é obrigatório.");
 
             RuleFor(a => a.CursoId)
                 .NotEmpty()
-                .WithMessage("Curso é obrigatório");
+                .WithMessage("O id do curso é obrigatório.");
 
             RuleFor(a => a.NomeCurso)
                 .NotEmpty()
-                .WithMessage("Nome do curso é obrigatório");
+                .WithMessage("O nome do curso é obrigatório.");
 
             RuleFor(c => c.Valor)
              .GreaterThan(0)
@@ -51,7 +54,7 @@ namespace PlataformaEducacao.GestaoAluno.Application.Commands.MatricularAlunoCur
 
             RuleFor(a => a.TotalAulasCurso)
                 .GreaterThan(0)
-                .WithMessage("O número de aulas do curso é obrigatório");
+                .WithMessage("O número de aulas do curso é obrigatório.");
         }
     }
 }

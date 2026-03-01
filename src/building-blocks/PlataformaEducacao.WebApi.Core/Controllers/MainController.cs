@@ -10,6 +10,7 @@ namespace PlataformaEducacao.WebApi.Core.Controllers
     public abstract class MainController : Controller
     {
         protected ICollection<string> Errors = new List<string>();
+
         protected ActionResult CustomResponse(HttpStatusCode statusCode = HttpStatusCode.OK, object? data = null)
         {
             if (OperacaoValida())
@@ -56,14 +57,34 @@ namespace PlataformaEducacao.WebApi.Core.Controllers
             return CustomResponse();
         }
 
+        protected ActionResult CustomResponse(ResponseResult responseResult)
+        {
+            ResponseContemErros(responseResult);
+
+            return CustomResponse();
+        }
+
+        protected bool ResponseContemErros(ResponseResult responseResult)
+        {
+            if (responseResult is null || responseResult.Erros.Mensagens.Count == 0) 
+                return false;
+
+            foreach (var mensagemErro in responseResult.Erros.Mensagens)
+                AdicionarErroProcessamento(mensagemErro);
+
+            return true;
+        }
+
         protected void AdicionarErroProcessamento(string mensagem)
         {
             Errors.Add(mensagem);
         }
+
         protected bool OperacaoValida()
         {
             return !Errors.Any();
         }
+
         protected void LimparErrosProcessamento()
         {
             Errors.Clear();

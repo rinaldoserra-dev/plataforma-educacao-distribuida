@@ -40,19 +40,33 @@ namespace PlataformaEducacao.GestaoAluno.Api.Controllers
             var cursos = await _alunoQueries.ListarMatriculasPendentesPagamentoPorAlunoId(_user.ObterUserId(), cancellationToken);
             return CustomResponse(HttpStatusCode.OK, cursos);
         }
+
+        //[HttpPost("matricular")]
+        //[Authorize(Roles = "ALUNO")]
+        //public async Task<IActionResult> Matricular([FromBody] MatricularRequest request, CancellationToken cancellationToken)
+        //{
+        //    if (!ModelState.IsValid)
+        //    {
+        //        return CustomResponse(ModelState);
+        //    }
+
+        //    var command = new MatricularAlunoCursoCommand(request.CursoId, _user.ObterUserId(), request.NomeCurso, request.QuantidadeAulasCurso, request.ValorCurso);
+            
+        //    return CustomResponse(await _mediatorHandler.SendCommand(command));
+        //}
+
         [HttpPost("matricular")]
         [Authorize(Roles = "ALUNO")]
-        public async Task<IActionResult> Matricular([FromBody] MatricularRequest request, CancellationToken cancellationToken)
+        public async Task<IActionResult> Matricular([FromBody] MatricularAlunoCursoCommand matricularAlunoCurso, CancellationToken cancellationToken)
         {
-            if (!ModelState.IsValid)
-            {
-                return CustomResponse(ModelState);
-            }
+            matricularAlunoCurso.VincularAluno(_user.ObterUserId());
 
-            var command = new MatricularAlunoCursoCommand(request.CursoId, _user.ObterUserId(), request.NomeCurso, request.QuantidadeAulasCurso, request.ValorCurso);
-            
-            return CustomResponse(await _mediatorHandler.SendCommand(command));
+            if (matricularAlunoCurso.EhValido() is false)
+                return CustomResponse(matricularAlunoCurso.ValidationResult);
+
+            return CustomResponse(await _mediatorHandler.SendCommand(matricularAlunoCurso));
         }
+
         [HttpGet("validar-certificado/{codigoVerificacao}")]
         [AllowAnonymous]
         public async Task<ActionResult<CertificadoViewModel>> ValidarCertificado(string codigoVerificacao, CancellationToken cancellationToken)
