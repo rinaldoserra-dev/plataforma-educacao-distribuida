@@ -2,13 +2,14 @@
 {
     public class IniciaPagamentoIntegrationEvent : IntegrationEvent
     {
-        public IniciaPagamentoIntegrationEvent(Guid matriculaId, Guid cursoId, Guid alunoId, decimal valor, string nomeCartao, string numeroCartao, string expiracaoCartao, string cvvCartao)
+        public IniciaPagamentoIntegrationEvent(Guid matriculaId, Guid cursoId, Guid alunoId, decimal valor, int tipoPagamento, string nomeCartao, string numeroCartao, string expiracaoCartao, string cvvCartao)
         {
             AggregateId = matriculaId;
             MatriculaId = matriculaId;
             CursoId = cursoId;
             AlunoId = alunoId;
             Valor = valor;
+            TipoPagamento = tipoPagamento;
             NomeCartao = nomeCartao;
             NumeroCartao = numeroCartao;
             ExpiracaoCartao = expiracaoCartao;
@@ -19,6 +20,7 @@
         public Guid CursoId { get; private set; }
         public Guid AlunoId { get; private set; }
         public decimal Valor { get; private set; }
+        public int TipoPagamento { get; set; }
         public string NomeCartao { get; private set; }
         public string NumeroCartao { get; private set; }
         public string ExpiracaoCartao { get; private set; }
