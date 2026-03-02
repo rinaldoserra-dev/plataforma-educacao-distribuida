@@ -38,5 +38,13 @@ namespace PlataformaEducacao.Bff.Api.Controllers
 
             return matriculas is null ? NotFound() : CustomResponse(matriculas);
         }
+
+        [HttpGet("validar-certificado/{certificadoId:guid}")]
+        public async Task<ActionResult> ValidarCertificado(Guid certificadoId)
+        {
+            var certificado = await _alunosService.ValidarCertificado(certificadoId);
+
+            return certificado is null ? NotFound() : CustomResponse(certificado);
+        }
     }
 }

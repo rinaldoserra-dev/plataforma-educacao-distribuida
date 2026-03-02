@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using PlataformaEducacao.Core.Mediator;
 using PlataformaEducacao.GestaoAluno.Application.Commands.MatricularAlunoCurso;
+using PlataformaEducacao.GestaoAluno.Application.DTO;
 using PlataformaEducacao.GestaoAluno.Application.Queries;
 using PlataformaEducacao.GestaoAluno.Application.Queries.ViewModels;
 using PlataformaEducacao.WebApi.Core.Controllers;
@@ -56,18 +57,18 @@ namespace PlataformaEducacao.GestaoAluno.Api.Controllers
 
         [HttpGet("validar-certificado/{codigoVerificacao}")]
         [AllowAnonymous]
-        public async Task<ActionResult<CertificadoViewModel>> ValidarCertificado(string codigoVerificacao, CancellationToken cancellationToken)
+        public async Task<ActionResult<CertificadoDTO>> ValidarCertificado(string codigoVerificacao, CancellationToken cancellationToken)
         {
             var certificado = await _alunoQueries.ValidarCertificado(codigoVerificacao, cancellationToken);
 
             return CustomResponse(HttpStatusCode.OK, certificado);
         }
 
-        [HttpGet("download-certificado/{certificadoId:guid}")]
+        [HttpGet("baixar-certificado/{certificadoId:guid}")]
         [AllowAnonymous]
-        public async Task<ActionResult> DownloadCertificado(Guid certificadoId, CancellationToken cancellationToken)
+        public async Task<ActionResult> BaixarCertificado(Guid certificadoId, CancellationToken cancellationToken)
         {
-            var certificado = await _alunoQueries.DownloadCertificado(certificadoId, cancellationToken);
+            var certificado = await _alunoQueries.BaixarCertificado(certificadoId, cancellationToken);
 
             if (certificado is null)
             {
