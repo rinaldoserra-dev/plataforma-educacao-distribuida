@@ -1,4 +1,5 @@
-﻿using PlataformaEducacao.GestaoAluno.Application.Queries.ViewModels;
+﻿using PlataformaEducacao.GestaoAluno.Application.DTO;
+using PlataformaEducacao.GestaoAluno.Application.Queries.ViewModels;
 using PlataformaEducacao.GestaoAluno.Domain.Repositories;
 using PlataformaEducacao.GestaoAluno.Domain.Services;
 
@@ -15,11 +16,13 @@ namespace PlataformaEducacao.GestaoAluno.Application.Queries
             _certificadoService = certificadoService;
         }
 
-        public async Task<IEnumerable<MatriculaViewModel>> ListarMatriculasPendentesPagamentoPorAlunoId(Guid alunoId, CancellationToken cancellationToken)
+        public async Task<IEnumerable<MatriculaPendentePagamentoDTO>> ListarMatriculasPendentesPagamentoPorAlunoId
+            (Guid alunoId, CancellationToken cancellationToken)
         {
-            var matriculas = await _alunoRepository.ListarMatriculasPendentesPagamentoPorAlunoId(alunoId, cancellationToken);
+            var matriculas = await _alunoRepository.ListarMatriculasPendentesPagamentoPorAlunoId
+                (alunoId, cancellationToken);
 
-            return matriculas.Select(MatriculaViewModel.FromMatricula);
+            return matriculas.Select(MatriculaPendentePagamentoDTO.FromMatricula);
         }
 
         public async Task<IEnumerable<MatriculaViewModel>> ObterAlunosMatriculadosPorCursoId(Guid cursoId, CancellationToken cancellationToken)
@@ -42,11 +45,11 @@ namespace PlataformaEducacao.GestaoAluno.Application.Queries
             return matricula is null ? null : MatriculaViewModel.FromMatricula(matricula);
         }
 
-        public async Task<IEnumerable<MatriculaViewModel>> ObterMatriculasAtivasPorAlunoId(Guid alunoId, CancellationToken cancellationToken)
+        public async Task<IEnumerable<MatriculaAtivaDTO>> ObterMatriculasAtivasPorAlunoId(Guid alunoId, CancellationToken cancellationToken)
         {
             var matriculas = await _alunoRepository.ObterMatriculasAtivasPorAlunoId(alunoId, cancellationToken);
 
-            return matriculas.Select(MatriculaViewModel.FromMatricula);
+            return matriculas.Select(MatriculaAtivaDTO.FromMatricula);
         }
 
         public async Task<CertificadoViewModel?> ValidarCertificado(string codigoVerificacao, CancellationToken cancellationToken)

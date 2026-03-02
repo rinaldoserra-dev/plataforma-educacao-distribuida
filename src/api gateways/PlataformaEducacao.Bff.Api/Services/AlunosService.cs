@@ -9,6 +9,7 @@ namespace PlataformaEducacao.Bff.Api.Services
     {
         Task<ResponseResult> Matricular(MatricularDTO solicitarMatricula);
         Task<ResponseResult> ObterMatriculasPendentesPagamento();
+        Task<ResponseResult> ObterMatriculasAtivas();
     }
 
     public class AlunosService : Service, IAlunosService
@@ -26,6 +27,10 @@ namespace PlataformaEducacao.Bff.Api.Services
         {
             var conteudoMatricular = ObterConteudo(matricular);
 
+            // TODO: Verificar aqui se o aluno já possui matrícula ativa ou pendente para o curso?
+
+            // TODO: Verificar aqui se o curso está disponível para matrícula?
+
             var response = await _httpClient.PostAsync("/api/alunos/matricular", conteudoMatricular);
 
             return await DeserializarObjetoResponse(response);
@@ -34,6 +39,13 @@ namespace PlataformaEducacao.Bff.Api.Services
         public async Task<ResponseResult> ObterMatriculasPendentesPagamento()
         {
             var response = await _httpClient.GetAsync("/api/alunos/matriculas-pendentes-pagamento");
+
+            return await DeserializarObjetoResponse(response);
+        }
+
+        public async Task<ResponseResult> ObterMatriculasAtivas()
+        {
+            var response = await _httpClient.GetAsync("/api/alunos/matriculas-ativas");
 
             return await DeserializarObjetoResponse(response);
         }

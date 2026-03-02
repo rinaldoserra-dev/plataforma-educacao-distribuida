@@ -26,12 +26,12 @@ namespace PlataformaEducacao.GestaoAluno.Api.Controllers
             _mediatorHandler = mediatorHandler;
         }
 
-        [HttpGet("cursos-ativos")]
+        [HttpGet("matriculas-ativas")]
         [Authorize(Roles = "ALUNO")]
-        public async Task<ActionResult<IEnumerable<MatriculaViewModel>>> ListarCursosAtivos(CancellationToken cancellationToken)
+        public async Task<ActionResult<IEnumerable<MatriculaViewModel>>> ObterMatriculasAtivas(CancellationToken cancellationToken)
         {
-            var cursos = await _alunoQueries.ObterMatriculasAtivasPorAlunoId(_user.ObterUserId(), cancellationToken);
-            return CustomResponse(HttpStatusCode.OK, cursos);
+            var matriculas = await _alunoQueries.ObterMatriculasAtivasPorAlunoId(_user.ObterUserId(), cancellationToken);
+            return CustomResponse(HttpStatusCode.OK, matriculas);
         }
 
         [HttpGet("matriculas-pendentes-pagamento")]

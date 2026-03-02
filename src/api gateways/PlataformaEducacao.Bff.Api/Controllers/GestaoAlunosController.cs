@@ -12,14 +12,6 @@ namespace PlataformaEducacao.Bff.Api.Controllers
     {
         private readonly IAlunosService _alunosService = alunosService;
 
-        [HttpGet("matriculas-pendentes-pagamento")]
-        public async Task<ActionResult<IEnumerable<MatriculaPendentePagamentoDTO>>> ObterMatriculasPendentesPagamento()
-        {
-            var matriculas = await _alunosService.ObterMatriculasPendentesPagamento();
-
-            return matriculas is null ? NotFound() : CustomResponse(matriculas);
-        }
-
         [HttpPost("matricular")]
         public async Task<IActionResult> Matricular(MatricularDTO matricular)
         {
@@ -29,6 +21,22 @@ namespace PlataformaEducacao.Bff.Api.Controllers
             var resposta = await _alunosService.Matricular(matricular);
 
             return CustomResponse(resposta);
+        }
+
+        [HttpGet("matriculas-pendentes-pagamento")]
+        public async Task<IActionResult> ObterMatriculasPendentesPagamento()
+        {
+            var matriculas = await _alunosService.ObterMatriculasPendentesPagamento();
+
+            return matriculas is null ? NotFound() : CustomResponse(matriculas);
+        }
+
+        [HttpGet("matriculas-ativas")]
+        public async Task<IActionResult> ObterMatriculasAtivas()
+        {
+            var matriculas = await _alunosService.ObterMatriculasAtivas();
+
+            return matriculas is null ? NotFound() : CustomResponse(matriculas);
         }
     }
 }
