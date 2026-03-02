@@ -55,7 +55,11 @@ namespace PlataformaEducacao.GestaoAluno.Application.Commands.PagamentoMatricula
 
             aluno.RealizarPagamentoMatricula(matricula);
 
-            var pagamentoIniciado = new IniciaPagamentoIntegrationEvent(matricula.Id, matricula.CursoId, matricula.AlunoId, message.Total, message.NomeCartao, message.NumeroCartao, message.ExpiracaoCartao, message.CvvCartao);
+            int pagamentoPorBoleto = 1;
+
+            var pagamentoIniciado = new IniciaPagamentoIntegrationEvent(matricula.Id, matricula.CursoId, 
+                matricula.AlunoId, message.Total, pagamentoPorBoleto, message.NomeCartao, message.NumeroCartao, 
+                message.ExpiracaoCartao, message.CvvCartao);
 
             await _bus.PublishAsync(pagamentoIniciado);
 
