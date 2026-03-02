@@ -1,4 +1,4 @@
-﻿namespace PlataformaEducacao.GestaoFinanceira.Business
+﻿namespace PlataformaEducacao.GestaoFinanceira.Business.Models
 {
     public enum StatusPagamento
     {
