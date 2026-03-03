@@ -10,8 +10,8 @@ namespace PlataformaEducacao.GestaoAluno.Application.Queries
         Task<IEnumerable<MatriculaAtivaDTO>> ObterMatriculasAtivasPorAlunoId(Guid alunoId, CancellationToken cancellationToken);
         Task<IEnumerable<MatriculaViewModel>> ObterAlunosMatriculadosPorCursoId(Guid cursoId, CancellationToken cancellationToken);
         Task<IEnumerable<MatriculaViewModel>> ObterAlunosPendentesPorCursoId(Guid cursoId, CancellationToken cancellationToken);
-        Task<CertificadoViewModel?> ValidarCertificado(string codigoVerificacao, CancellationToken cancellationToken);
-        Task<ArquivoViewModel?> DownloadCertificado(Guid certificadoId, CancellationToken cancellationToken);
+        Task<CertificadoDTO?> ValidarCertificado(string codigoVerificacao, CancellationToken cancellationToken);
+        Task<ArquivoDTO?> BaixarCertificado(Guid certificadoId, CancellationToken cancellationToken);
         Task<HistoricoAlunoViewModel?> ObterHistoricoAluno(Guid alunoId, CancellationToken cancellationToken);
     }
 }

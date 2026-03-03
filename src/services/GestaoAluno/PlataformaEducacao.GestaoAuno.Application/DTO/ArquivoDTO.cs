@@ -1,6 +1,6 @@
-﻿namespace PlataformaEducacao.GestaoAluno.Application.Queries.ViewModels
+﻿namespace PlataformaEducacao.GestaoAluno.Application.DTO
 {
-    public class ArquivoViewModel
+    public class ArquivoDTO
     {
         public byte[] PdfBytes { get; set; } = null!;
         public string ContentType { get; set; } = null!;

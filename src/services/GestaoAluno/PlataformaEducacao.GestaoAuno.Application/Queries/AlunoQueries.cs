@@ -52,16 +52,17 @@ namespace PlataformaEducacao.GestaoAluno.Application.Queries
             return matriculas.Select(MatriculaAtivaDTO.FromMatricula);
         }
 
-        public async Task<CertificadoViewModel?> ValidarCertificado(string codigoVerificacao, CancellationToken cancellationToken)
+        public async Task<CertificadoDTO?> ValidarCertificado(string codigoVerificacao, CancellationToken cancellationToken)
         {
             var matricula = await _alunoRepository.ObterCertificadoPorCodigoVerificacao(codigoVerificacao, cancellationToken);
             if (matricula is null)
             {
                 return null;
             }
-            return matricula.Certificado is null ? null : CertificadoViewModel.FromMatricula(matricula);
+            return matricula.Certificado is null ? null : CertificadoDTO.FromMatricula(matricula);
         }
-        public async Task<ArquivoViewModel?> DownloadCertificado(Guid certificadoId, CancellationToken cancellationToken)
+
+        public async Task<ArquivoDTO?> BaixarCertificado(Guid certificadoId, CancellationToken cancellationToken)
         {
             var certificado = await _alunoRepository.ObterCertificadoPorCertificadoId(certificadoId, cancellationToken);
 
@@ -70,7 +71,7 @@ namespace PlataformaEducacao.GestaoAluno.Application.Queries
 
             var certificadoArquivo = await _certificadoService.GerarCertificado(certificado!);
 
-            return new ArquivoViewModel
+            return new ArquivoDTO
             {
                 NomeArquivo = $"Certificado_{certificado.Matricula.Aluno.Nome}_{certificado.Matricula.NomeCurso}.pdf".Replace(" ", "_").Replace("/", "-"),
                 ContentType = "application/pdf",
