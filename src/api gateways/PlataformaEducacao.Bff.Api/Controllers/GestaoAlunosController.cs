@@ -39,10 +39,10 @@ namespace PlataformaEducacao.Bff.Api.Controllers
             return matriculas is null ? NotFound() : CustomResponse(matriculas);
         }
 
-        [HttpGet("validar-certificado/{certificadoId:guid}")]
-        public async Task<ActionResult> ValidarCertificado(Guid certificadoId)
+        [HttpGet("validar-certificado/{codigoVerificacao}")]
+        public async Task<ActionResult> ValidarCertificado(string codigoVerificacao)
         {
-            var certificado = await _alunosService.ValidarCertificado(certificadoId);
+            var certificado = await _alunosService.ValidarCertificado(codigoVerificacao);
 
             return certificado is null ? NotFound() : CustomResponse(certificado);
         }

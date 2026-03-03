@@ -10,7 +10,7 @@ namespace PlataformaEducacao.Bff.Api.Services
         Task<ResponseResult> Matricular(MatricularDTO solicitarMatricula);
         Task<ResponseResult> ObterMatriculasPendentesPagamento();
         Task<ResponseResult> ObterMatriculasAtivas();
-        Task<ResponseResult> ValidarCertificado(Guid certificadoId);
+        Task<ResponseResult> ValidarCertificado(string codigoVerificacao);
     }
 
     public class AlunosService : Service, IAlunosService
@@ -51,9 +51,9 @@ namespace PlataformaEducacao.Bff.Api.Services
             return await DeserializarObjetoResponse(response);
         }
 
-        public async Task<ResponseResult> ValidarCertificado(Guid certificadoId)
+        public async Task<ResponseResult> ValidarCertificado(string codigoVerificacao)
         {
-            var response = await _httpClient.GetAsync($"/api/alunos/validar-certificado/{certificadoId}");
+            var response = await _httpClient.GetAsync($"/api/alunos/validar-certificado/{codigoVerificacao}");
 
             return await DeserializarObjetoResponse(response);
         }
