@@ -20,8 +20,26 @@ namespace PlataformaEducacao.GestaoFinanceira.Api.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Pagamento>()
+                .Property(p => p.Valor)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<Transacao>(entity =>
+            {
+                entity.Property(t => t.CustoTransacao)
+                    .HasPrecision(18, 2);
+
+                entity.Property(t => t.ValorTotal)
+                    .HasPrecision(18, 2);
+            });
+
+
             modelBuilder.Ignore<ValidationResult>();
             modelBuilder.Ignore<Event>();
+
+
 
             foreach (var property in modelBuilder.Model.GetEntityTypes().SelectMany(
                 e => e.GetProperties().Where(p => p.ClrType == typeof(string))))
