@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 17
-VisualStudioVersion = 17.14.36717.8 d17.14
+# Visual Studio Version 18
+VisualStudioVersion = 18.4.11612.150 stable
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{956A3C96-0443-48B9-B217-B08E5ABE18E0}"
 EndProject
@@ -56,6 +56,12 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlataformaEducacao.GestaoFinanceira.EduPag", "src\services\GestaoFinanceira\PlataformaEducacao.GestaoFinanceira.EduPag\PlataformaEducacao.GestaoFinanceira.EduPag.csproj", "{24C70BC5-DA11-CA12-BCB0-60C0505B9219}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlataformaEducacao.GestaoFinanceira.Api", "src\services\GestaoFinanceira\PlataformaEducacao.GestaoFinanceira.Api\PlataformaEducacao.GestaoFinanceira.Api.csproj", "{FCA7008E-528C-4FB4-CFD3-D0D10E6FF4DD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlataformaEducacao.GestaoConteudo.Domain.Tests", "src\tests\PlataformaEducacao.GestaoConteudo.Domain.Tests\PlataformaEducacao.GestaoConteudo.Domain.Tests.csproj", "{A117C448-BF60-47AF-AC4A-0229AEE261C3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlataformaEducacao.GestaoConteudo.Application.Tests", "src\tests\PlataformaEducacao.GestaoConteudo.Application.Tests\PlataformaEducacao.GestaoConteudo.Application.Tests.csproj", "{F7D3F605-91B9-43C1-8298-F34DDD3FBCF6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlataformaEducacao.GestaoConteudo.Api.Tests", "src\tests\PlataformaEducacao.GestaoConteudo.Api.Tests\PlataformaEducacao.GestaoConteudo.Api.Tests.csproj", "{DCD164DF-CA57-4F48-BD2D-535D60501C93}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -127,6 +133,18 @@ Global
 		{FCA7008E-528C-4FB4-CFD3-D0D10E6FF4DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FCA7008E-528C-4FB4-CFD3-D0D10E6FF4DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FCA7008E-528C-4FB4-CFD3-D0D10E6FF4DD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A117C448-BF60-47AF-AC4A-0229AEE261C3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A117C448-BF60-47AF-AC4A-0229AEE261C3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A117C448-BF60-47AF-AC4A-0229AEE261C3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A117C448-BF60-47AF-AC4A-0229AEE261C3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F7D3F605-91B9-43C1-8298-F34DDD3FBCF6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F7D3F605-91B9-43C1-8298-F34DDD3FBCF6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F7D3F605-91B9-43C1-8298-F34DDD3FBCF6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F7D3F605-91B9-43C1-8298-F34DDD3FBCF6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DCD164DF-CA57-4F48-BD2D-535D60501C93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DCD164DF-CA57-4F48-BD2D-535D60501C93}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DCD164DF-CA57-4F48-BD2D-535D60501C93}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DCD164DF-CA57-4F48-BD2D-535D60501C93}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -158,6 +176,11 @@ Global
 		{57E07AAF-5EAA-4C30-A566-79DECF04B73E} = {D9E93A76-83A8-450A-ACB2-A0075A449EB2}
 		{24C70BC5-DA11-CA12-BCB0-60C0505B9219} = {D9E93A76-83A8-450A-ACB2-A0075A449EB2}
 		{FCA7008E-528C-4FB4-CFD3-D0D10E6FF4DD} = {D9E93A76-83A8-450A-ACB2-A0075A449EB2}
+		{AC336762-8430-40F4-B275-C10B961C23A3} = {956A3C96-0443-48B9-B217-B08E5ABE18E0}
+		{1AE6E90D-F4AC-471F-AD40-6BC86CFACAD8} = {AC336762-8430-40F4-B275-C10B961C23A3}
+		{A117C448-BF60-47AF-AC4A-0229AEE261C3} = {1AE6E90D-F4AC-471F-AD40-6BC86CFACAD8}
+		{F7D3F605-91B9-43C1-8298-F34DDD3FBCF6} = {1AE6E90D-F4AC-471F-AD40-6BC86CFACAD8}
+		{DCD164DF-CA57-4F48-BD2D-535D60501C93} = {1AE6E90D-F4AC-471F-AD40-6BC86CFACAD8}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {5076C19C-1C60-4400-A9A6-CA081FE46BAE}
