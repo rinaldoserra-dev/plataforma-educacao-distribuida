@@ -56,7 +56,7 @@ namespace PlataformaEducacao.GestaoAluno.Api.Configurations
                     aluno.RealizarMatricula(matriculaDominiosRicos);
 
                     matricula.Ativar();
-                    matriculaCore.Ativar();
+                    // matriculaCore.Ativar(); // deixada pendente de pagamento, para já aparecer na listagem de pendentes
                     matriculaDominiosRicos.Ativar();
 
                     

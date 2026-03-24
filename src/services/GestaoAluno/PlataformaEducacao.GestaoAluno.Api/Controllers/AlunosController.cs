@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PlataformaEducacao.Core.Mediator;
-using PlataformaEducacao.GestaoAluno.Api.Requests;
 using PlataformaEducacao.GestaoAluno.Application.Commands.MatricularAlunoCurso;
+using PlataformaEducacao.GestaoAluno.Application.DTO;
 using PlataformaEducacao.GestaoAluno.Application.Queries;
 using PlataformaEducacao.GestaoAluno.Application.Queries.ViewModels;
 using PlataformaEducacao.WebApi.Core.Controllers;
@@ -17,6 +17,7 @@ namespace PlataformaEducacao.GestaoAluno.Api.Controllers
         private readonly IAlunoQueries _alunoQueries;
         private readonly IAspNetUser _user;
         private readonly IMediatorHandler _mediatorHandler;
+
         public AlunosController(IAlunoQueries alunoQueries,
                                 IAspNetUser user,
                                 IMediatorHandler mediatorHandler)
@@ -26,34 +27,21 @@ namespace PlataformaEducacao.GestaoAluno.Api.Controllers
             _mediatorHandler = mediatorHandler;
         }
 
-        [HttpGet("cursos-ativo")]
+        [HttpGet("matriculas-ativas")]
         [Authorize(Roles = "ALUNO")]
-        public async Task<ActionResult<IEnumerable<MatriculaViewModel>>> ListarCursosAtivo(CancellationToken cancellationToken)
+        public async Task<ActionResult<IEnumerable<MatriculaViewModel>>> ObterMatriculasAtivas(CancellationToken cancellationToken)
         {
-            var cursos = await _alunoQueries.ObterMatriculasAtivasPorAlunoId(_user.ObterUserId(), cancellationToken);
-            return CustomResponse(HttpStatusCode.OK, cursos);
-        }
-        [HttpGet("cursos-pendente")]
-        [Authorize(Roles = "ALUNO")]
-        public async Task<ActionResult<IEnumerable<MatriculaViewModel>>> ListarCursosPendentes(CancellationToken cancellationToken)
-        {
-            var cursos = await _alunoQueries.ListarMatriculasPendentesPagamentoPorAlunoId(_user.ObterUserId(), cancellationToken);
-            return CustomResponse(HttpStatusCode.OK, cursos);
+            var matriculas = await _alunoQueries.ObterMatriculasAtivasPorAlunoId(_user.ObterUserId(), cancellationToken);
+            return CustomResponse(HttpStatusCode.OK, matriculas);
         }
 
-        //[HttpPost("matricular")]
-        //[Authorize(Roles = "ALUNO")]
-        //public async Task<IActionResult> Matricular([FromBody] MatricularRequest request, CancellationToken cancellationToken)
-        //{
-        //    if (!ModelState.IsValid)
-        //    {
-        //        return CustomResponse(ModelState);
-        //    }
-
-        //    var command = new MatricularAlunoCursoCommand(request.CursoId, _user.ObterUserId(), request.NomeCurso, request.QuantidadeAulasCurso, request.ValorCurso);
-            
-        //    return CustomResponse(await _mediatorHandler.SendCommand(command));
-        //}
+        [HttpGet("matriculas-pendentes-pagamento")]
+        [Authorize(Roles = "ALUNO")]
+        public async Task<ActionResult<IEnumerable<MatriculaViewModel>>> ObterMatriculasPendentesPagamento(CancellationToken cancellationToken)
+        {
+            var matriculas = await _alunoQueries.ListarMatriculasPendentesPagamentoPorAlunoId(_user.ObterUserId(), cancellationToken);
+            return CustomResponse(HttpStatusCode.OK, matriculas);
+        }
 
         [HttpPost("matricular")]
         [Authorize(Roles = "ALUNO")]
@@ -69,18 +57,18 @@ namespace PlataformaEducacao.GestaoAluno.Api.Controllers
 
         [HttpGet("validar-certificado/{codigoVerificacao}")]
         [AllowAnonymous]
-        public async Task<ActionResult<CertificadoViewModel>> ValidarCertificado(string codigoVerificacao, CancellationToken cancellationToken)
+        public async Task<ActionResult<CertificadoDTO>> ValidarCertificado(string codigoVerificacao, CancellationToken cancellationToken)
         {
             var certificado = await _alunoQueries.ValidarCertificado(codigoVerificacao, cancellationToken);
 
             return CustomResponse(HttpStatusCode.OK, certificado);
         }
 
-        [HttpGet("download-certificado/{certificadoId:guid}")]
+        [HttpGet("baixar-certificado/{certificadoId:guid}")]
         [AllowAnonymous]
-        public async Task<ActionResult> DownloadCertificado(Guid certificadoId, CancellationToken cancellationToken)
+        public async Task<ActionResult> BaixarCertificado(Guid certificadoId, CancellationToken cancellationToken)
         {
-            var certificado = await _alunoQueries.DownloadCertificado(certificadoId, cancellationToken);
+            var certificado = await _alunoQueries.BaixarCertificado(certificadoId, cancellationToken);
 
             if (certificado is null)
             {

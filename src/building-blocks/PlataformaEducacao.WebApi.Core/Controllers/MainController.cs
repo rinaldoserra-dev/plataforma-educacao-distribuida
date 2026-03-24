@@ -9,7 +9,7 @@ namespace PlataformaEducacao.WebApi.Core.Controllers
     [ApiController]
     public abstract class MainController : Controller
     {
-        protected ICollection<string> Errors = new List<string>();
+        protected ICollection<string> Errors = [];
 
         protected ActionResult CustomResponse(HttpStatusCode statusCode = HttpStatusCode.OK, object? data = null)
         {
@@ -34,7 +34,7 @@ namespace PlataformaEducacao.WebApi.Core.Controllers
                 Data = null,
                 Erros = new ResponseErrorMessages
                 {
-                    Mensagens = Errors.ToList()
+                    Mensagens = [.. Errors]
                 }
             });
         }
@@ -57,11 +57,12 @@ namespace PlataformaEducacao.WebApi.Core.Controllers
             return CustomResponse();
         }
 
-        protected ActionResult CustomResponse(ResponseResult responseResult)
+        protected ActionResult CustomResponse(ResponseResult response)
         {
-            ResponseContemErros(responseResult);
+            if (response is null || response.Sucesso is false || response.Erros.Mensagens.Count > 0)
+                return BadRequest(response);
 
-            return CustomResponse();
+            return Ok(response);
         }
 
         protected bool ResponseContemErros(ResponseResult responseResult)
@@ -82,7 +83,7 @@ namespace PlataformaEducacao.WebApi.Core.Controllers
 
         protected bool OperacaoValida()
         {
-            return !Errors.Any();
+            return Errors.Count == 0;
         }
 
         protected void LimparErrosProcessamento()
