@@ -31,22 +31,26 @@ namespace PlataformaEducacao.GestaoAluno.Application.Commands.PagamentoMatricula
                 AdicionarErro("Aluno não encontrado!");
                 return ValidationResult;
             }
+
             var matricula = aluno.Matriculas.FirstOrDefault(m => m.Id == message.MatriculaId);
             if (matricula is null)
             {
-                AdicionarErro("Matricula não encontrada!");
+                AdicionarErro("Matrícula não encontrada!");
                 return ValidationResult;
             }
+
             if (matricula.SituacaoMatricula == SituacaoMatricula.ProcessoPagamento)
             {
                 AdicionarErro("A matrícula já está em processo de pagamento. Aguarde a confirmação.");
                 return ValidationResult;
             }
+
             if (matricula.EstaAtiva())
             {
-                AdicionarErro("Já foi realizada o pagamento da matrícula!");
+                AdicionarErro("Já foi realizado o pagamento da matrícula!");
                 return ValidationResult;
             }
+
             if (matricula.Valor != message.Total)
             {
                 AdicionarErro("Valor do curso inválido!");
@@ -61,7 +65,15 @@ namespace PlataformaEducacao.GestaoAluno.Application.Commands.PagamentoMatricula
                 matricula.AlunoId, message.Total, pagamentoPorBoleto, message.NomeCartao, message.NumeroCartao, 
                 message.ExpiracaoCartao, message.CvvCartao);
 
-            await _bus.PublishAsync(pagamentoIniciado);
+            // await _bus.PublishAsync(pagamentoIniciado);
+
+            var result = await _bus.RequestAsync<IniciaPagamentoIntegrationEvent, ResponseMessage>(pagamentoIniciado);
+
+            if (result.ValidationResult.IsValid is false)
+            {
+                foreach (var error in result.ValidationResult.Errors) AdicionarErro(error.ErrorMessage);
+                return ValidationResult;
+            }
 
             return await PersistirDados(_alunoRepository.UnitOfWork);
         }
