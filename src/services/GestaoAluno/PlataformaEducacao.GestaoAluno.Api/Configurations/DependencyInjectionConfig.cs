@@ -5,7 +5,6 @@ using PlataformaEducacao.GestaoAluno.Application.Commands.AdicionarAluno;
 using PlataformaEducacao.GestaoAluno.Application.Commands.FinalizarCurso;
 using PlataformaEducacao.GestaoAluno.Application.Commands.GerarCertificado;
 using PlataformaEducacao.GestaoAluno.Application.Commands.MatricularAlunoCurso;
-using PlataformaEducacao.GestaoAluno.Application.Commands.PagamentoMatricula;
 using PlataformaEducacao.GestaoAluno.Application.Commands.RealizarAula;
 using PlataformaEducacao.GestaoAluno.Application.Events;
 using PlataformaEducacao.GestaoAluno.Application.Queries;
@@ -40,7 +39,7 @@ namespace PlataformaEducacao.GestaoAluno.Api.Configurations
             services.AddScoped<IRequestHandler<FinalizarCursoCommand, ValidationResult>, FinalizarCursoCommandHandler>();
             services.AddScoped<IRequestHandler<GerarCertificadoCommand, ValidationResult>, GerarCertificadoCommandHandler>();
             services.AddScoped<IRequestHandler<MatricularAlunoCursoCommand, ValidationResult>, MatricularAlunoCursoHandler>();
-            services.AddScoped<IRequestHandler<PagamentoMatriculaCommand, ValidationResult>, PagamentoMatriculaHandler>();
+
             services.AddScoped<IRequestHandler<RealizarAulaCommand, ValidationResult>, RealizarAulaCommandHandler>();
 
             services.AddScoped<IMediatorHandler, MediatorHandler>();

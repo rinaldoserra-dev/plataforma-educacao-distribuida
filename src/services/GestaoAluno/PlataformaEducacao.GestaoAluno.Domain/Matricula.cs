@@ -18,10 +18,12 @@ namespace PlataformaEducacao.GestaoAluno.Domain
 
         private readonly List<ProgressoAula> _progressoAulas;
         public IReadOnlyCollection<ProgressoAula> ProgressoAulas => _progressoAulas;
+
         protected Matricula()
         {
             _progressoAulas = new List<ProgressoAula>();
         }
+
         public Matricula(Guid cursoId, string nomeCurso, int totalAulasCurso, decimal valor)
         {
             CursoId = cursoId;
@@ -49,10 +51,10 @@ namespace PlataformaEducacao.GestaoAluno.Domain
         public void Ativar()
         {
             if (EstaAtiva())
-            {
                 throw new DomainException("Matrícula já ativa.");
-            }
+
             SituacaoMatricula = SituacaoMatricula.Ativa;
+
             AdicionarEvento(new MatriculaAtivadaEvent(Id));
         }
 
@@ -64,14 +66,31 @@ namespace PlataformaEducacao.GestaoAluno.Domain
         public void IniciarPagamento()
         {
             if (SituacaoMatricula == SituacaoMatricula.Ativa)
-            {
-                throw new DomainException("Pagamento já realizado.");
-            }
+                throw new DomainException("Matrícula já paga.");
+
             if (SituacaoMatricula == SituacaoMatricula.ProcessoPagamento)
-            {
-                throw new DomainException("Pagamento em processo de pagamento.");
-            }
+                throw new DomainException("Matrícula já em processo de pagamento.");
+
             SituacaoMatricula = SituacaoMatricula.ProcessoPagamento;
+        }
+
+        public void RecusarPagamento()
+        {
+            if (SituacaoMatricula == SituacaoMatricula.Ativa)
+                throw new DomainException("Matrícula já ativa, não pode ter pagamento recusado.");
+
+            SituacaoMatricula = SituacaoMatricula.PendentePagamento;
+        }
+
+        public void ConcluirPagamento()
+        {
+            if (SituacaoMatricula == SituacaoMatricula.Ativa)
+                throw new DomainException("Matrícula já ativa, não necessita novo pagamento.");
+
+            if (SituacaoMatricula != SituacaoMatricula.ProcessoPagamento)
+                throw new DomainException("Matrícula não se encontra em processo de pagamento.");
+
+            Ativar();
         }
 
         public bool AulaRealizada(ProgressoAula progressoAula)
@@ -81,15 +100,12 @@ namespace PlataformaEducacao.GestaoAluno.Domain
 
         public void RegistrarAula(ProgressoAula progressoAula)
         {
-            if (!EstaAtiva())
-            {
+            if (EstaAtiva() is false)
                 throw new DomainException("Matrícula pendente de pagamento.");
-            }
 
             if (AulaRealizada(progressoAula))
-            {
-                throw new DomainException("Aula já registrada no progresso.");
-            }
+                throw new DomainException("Aula já realizada.");
+
             progressoAula.AssociarMatricula(Id);
             _progressoAulas.Add(progressoAula);
 
@@ -108,42 +124,38 @@ namespace PlataformaEducacao.GestaoAluno.Domain
 
         public void FinalizarCurso()
         {
-            if (!EstaAtiva())
-            {
+            if (EstaAtiva() is false)
                 throw new DomainException("Matrícula pendente de pagamento.");
-            }
+
             int aulasConcluidas = _progressoAulas.Count;
             int totalAulasCurso = HistoricoAprendizado.TotalAulasCurso;
 
             if (HistoricoAprendizado.ProgressoGeralCurso < 100 || aulasConcluidas != totalAulasCurso)
-            {
-                throw new DomainException("Existem aulas pendentes de visualização.");
-            }
+                throw new DomainException("Existem aulas ainda não assistidas.");
+
             if (HistoricoAprendizado.SituacaoCurso == SituacaoCurso.Concluido)
-            {
-                throw new DomainException("Curso já finalizado");
-            }
-            
+                throw new DomainException("Curso já finalizado.");
+
             double progresso = HistoricoAprendizado.ProgressoGeralCurso;
 
             HistoricoAprendizado = HistoricoAprendizado.HistoricoAprendizadoFactory.FinalizarCurso(totalAulasCurso, progresso);
+
             AdicionarEvento(new CursoFinalizadoEvent(Id));
         }
 
         public void GerarCertificado()
         {
             if (HistoricoAprendizado.SituacaoCurso != SituacaoCurso.Concluido)
-            {
-                throw new DomainException("O curso deve estar concluído para gerar o certificado.");
-            }
-            Certificado = new Certificado(Id);            
+                throw new DomainException("Curso ainda não concluído.");
+
+            Certificado = new Certificado(Id);
         }
 
         protected void Validar()
         {
             Validacoes.ValidarSeVazio(CursoId, "O id do curso é obrigatório.");
             Validacoes.ValidarSeVazio(NomeCurso, "O nome do curso é obrigatório.");
-            Validacoes.ValidarSeMenorOuIgualQue(Valor, 0, "O Valor do curso deve ser maior que 0.");
+            Validacoes.ValidarSeMenorOuIgualQue(Valor, 0, "O valor do curso deve ser maior que 0.");
         }
 
         public static class MatriculaFactory
@@ -177,7 +189,7 @@ namespace PlataformaEducacao.GestaoAluno.Domain
                     CursoId = cursoId,
                     HistoricoAprendizado = HistoricoAprendizado.HistoricoAprendizadoFactory.Progresso(totalAulasCurso, 100),
                     SituacaoMatricula = SituacaoMatricula.Ativa,
-                    DataMatricula = DateTime.Now,                    
+                    DataMatricula = DateTime.Now,
                     Valor = valor
                 };
 

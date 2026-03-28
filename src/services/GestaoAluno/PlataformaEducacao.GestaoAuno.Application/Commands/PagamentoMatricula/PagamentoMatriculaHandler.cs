@@ -1,6 +1,5 @@
-﻿using FluentValidation.Results;
-using MediatR;
-using PlataformaEducacao.Core.Messages;
+﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using PlataformaEducacao.Core.Messages.Integration;
 using PlataformaEducacao.GestaoAluno.Domain;
 using PlataformaEducacao.GestaoAluno.Domain.Repositories;
@@ -8,74 +7,80 @@ using PlataformaEducacao.MessageBus;
 
 namespace PlataformaEducacao.GestaoAluno.Application.Commands.PagamentoMatricula
 {
-    public class PagamentoMatriculaHandler : CommandHandler,
-       IRequestHandler<PagamentoMatriculaCommand, ValidationResult>
+    public class PagamentoMatriculaHandler : BackgroundService
     {
-        private readonly IAlunoRepository _alunoRepository;
+        private readonly IServiceProvider _serviceProvider;
         private readonly IMessageBus _bus;
 
-        public PagamentoMatriculaHandler(IAlunoRepository alunoRepository,
-                                         IMessageBus bus)
+        public PagamentoMatriculaHandler(IServiceProvider serviceProvider, IMessageBus bus)
         {
-            _alunoRepository = alunoRepository;
+            _serviceProvider = serviceProvider;
             _bus = bus;
         }
 
-        public async Task<ValidationResult> Handle(PagamentoMatriculaCommand message, CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            if (!message.EhValido()) return message.ValidationResult;
+            SetSubscribers();
+            return Task.CompletedTask;
+        }
 
-            var aluno = await _alunoRepository.ObterComMatriculasPorId(message.AlunoId, cancellationToken);
-            if (aluno is null)
-            {
-                AdicionarErro("Aluno não encontrado!");
-                return ValidationResult;
-            }
+        private void SetSubscribers()
+        {
+            _bus.SubscribeAsync<MatriculaPagamentoRecusadoIntegrationEvent>("PagamentoRecusado", async request => await AtualiarMatricula(request));
+            _bus.SubscribeAsync<MatriculaPagamentoRealizadoIntegrationEvent>("PagamentoRealizado", async request => await ConcluirMatricula(request));
+        }
 
+        private async Task AtualiarMatricula(MatriculaPagamentoRecusadoIntegrationEvent message)
+        {
+            var alunoRepository = ObterAlunoRepository();
+
+            // Obtém o aluno com suas matrículas para verificar se a matrícula existe e pode ser concluída.
+            var aluno = await alunoRepository.ObterComMatriculasPorId(message.AggregateId, CancellationToken.None);
+            if (aluno is null) return;
+
+            // Verifica se a matrícula existe para o aluno. Se não existir, não é possível concluir a matrícula.
             var matricula = aluno.Matriculas.FirstOrDefault(m => m.Id == message.MatriculaId);
-            if (matricula is null)
-            {
-                AdicionarErro("Matrícula não encontrada!");
-                return ValidationResult;
-            }
+            if (matricula is null) return;
 
-            if (matricula.SituacaoMatricula == SituacaoMatricula.ProcessoPagamento)
-            {
-                AdicionarErro("A matrícula já está em processo de pagamento. Aguarde a confirmação.");
-                return ValidationResult;
-            }
+            // Se a matrícula já estiver ativa, não pode ser recusada.
+            if (matricula.SituacaoMatricula == SituacaoMatricula.Ativa) return;
 
-            if (matricula.EstaAtiva())
-            {
-                AdicionarErro("Já foi realizado o pagamento da matrícula!");
-                return ValidationResult;
-            }
+            // Registra a recusa do pagamento da matrícula, o que deve atualizar o status da matrícula para ativa.
+            aluno.RecusarPagamentoMatricula(matricula);
 
-            if (matricula.Valor != message.Total)
-            {
-                AdicionarErro("Valor do curso inválido!");
-                return ValidationResult;
-            }
+            // Atualiza o aluno no repositório para refletir as mudanças realizadas na matrícula.
+            await alunoRepository.UnitOfWork.Commit();
+        }
 
-            aluno.RealizarPagamentoMatricula(matricula);
+        private async Task ConcluirMatricula(MatriculaPagamentoRealizadoIntegrationEvent message)
+        {
+            var alunoRepository = ObterAlunoRepository();
 
-            int pagamentoPorBoleto = 1;
+            // Obtém o aluno com suas matrículas para verificar se a matrícula existe e pode ser concluída.
+            var aluno = await alunoRepository.ObterComMatriculasPorId(message.AggregateId, CancellationToken.None);
+            if (aluno is null) return;
 
-            var pagamentoIniciado = new IniciaPagamentoIntegrationEvent(matricula.Id, matricula.CursoId, 
-                matricula.AlunoId, message.Total, pagamentoPorBoleto, message.NomeCartao, message.NumeroCartao, 
-                message.ExpiracaoCartao, message.CvvCartao);
+            // Verifica se a matrícula existe para o aluno. Se não existir, não é possível concluir a matrícula.
+            var matricula = aluno.Matriculas.FirstOrDefault(m => m.Id == message.MatriculaId);
+            if (matricula is null) return;
 
-            // await _bus.PublishAsync(pagamentoIniciado);
+            // Se a matrícula já estiver ativa, não é necessário realizar nenhuma ação.
+            if (matricula.SituacaoMatricula == SituacaoMatricula.Ativa) return;
 
-            var result = await _bus.RequestAsync<IniciaPagamentoIntegrationEvent, ResponseMessage>(pagamentoIniciado);
+            // Registra o pagamento da matrícula, o que deve atualizar o status da matrícula para ativa.
+            aluno.ConcluirPagamentoMatricula(matricula);
 
-            if (result.ValidationResult.IsValid is false)
-            {
-                foreach (var error in result.ValidationResult.Errors) AdicionarErro(error.ErrorMessage);
-                return ValidationResult;
-            }
+            // Atualiza o aluno no repositório para refletir as mudanças realizadas na matrícula.
+            await alunoRepository.UnitOfWork.Commit();
+        }
 
-            return await PersistirDados(_alunoRepository.UnitOfWork);
+        private IAlunoRepository ObterAlunoRepository()
+        {
+            // Cria um escopo para resolver as dependências necessárias para concluir a matrícula.
+            // Isso é importante para garantir que as dependências sejam resolvidas corretamente, especialmente em um ambiente de background service.
+            using var scope = _serviceProvider.CreateScope();
+
+            return scope.ServiceProvider.GetRequiredService<IAlunoRepository>();
         }
     }
 }

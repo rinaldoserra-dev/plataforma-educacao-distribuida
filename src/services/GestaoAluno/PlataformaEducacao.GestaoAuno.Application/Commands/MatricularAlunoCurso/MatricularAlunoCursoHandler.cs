@@ -15,12 +15,12 @@ namespace PlataformaEducacao.GestaoAluno.Application.Commands.MatricularAlunoCur
         {
             _alunoRepository = alunoRepository;
         }
+
         public async Task<ValidationResult> Handle(MatricularAlunoCursoCommand message, CancellationToken cancellationToken)
         {
-            if (!message.EhValido()) return message.ValidationResult;
+            if (message.EhValido() is false) return message.ValidationResult;
 
             var aluno = await _alunoRepository.ObterComMatriculasPorId(message.AlunoId, cancellationToken);
-
             if (aluno is null)
             {
                 AdicionarErro("Aluno não encontrado!");
