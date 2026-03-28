@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using PlataformaEducacao.Core.Mediator;
 using PlataformaEducacao.GestaoAluno.Application.Commands.MatricularAlunoCurso;
+using PlataformaEducacao.GestaoAluno.Application.Commands.RealizarAula;
 using PlataformaEducacao.GestaoAluno.Application.DTO;
 using PlataformaEducacao.GestaoAluno.Application.Queries;
 using PlataformaEducacao.GestaoAluno.Application.Queries.ViewModels;
@@ -53,6 +54,16 @@ namespace PlataformaEducacao.GestaoAluno.Api.Controllers
                 return CustomResponse(matricularAlunoCurso.ValidationResult);
 
             return CustomResponse(await _mediatorHandler.SendCommand(matricularAlunoCurso));
+        }
+
+        [HttpPost("realizar-aula")]
+        [Authorize(Roles = "ALUNO")]
+        public async Task<IActionResult> RealizarAula([FromBody] RealizarAulaCommand realizarAulaCommand, CancellationToken cancellationToken)
+        {
+            if (realizarAulaCommand.EhValido() is false)
+                return CustomResponse(realizarAulaCommand.ValidationResult);
+
+            return CustomResponse(await _mediatorHandler.SendCommand(realizarAulaCommand));
         }
 
         [HttpGet("validar-certificado/{codigoVerificacao}")]
