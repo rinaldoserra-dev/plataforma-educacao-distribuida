@@ -11,19 +11,21 @@ namespace PlataformaEducacao.GestaoAluno.Application.Commands.FinalizarCurso
         }
 
         public Guid MatriculaId { get; private set; }
+
         public override bool EhValido()
         {
             ValidationResult = new FinalizarCursoCommandValidation().Validate(this);
             return ValidationResult.IsValid;
         }
     }
+
     public class FinalizarCursoCommandValidation : AbstractValidator<FinalizarCursoCommand>
     {
         public FinalizarCursoCommandValidation()
         {
             RuleFor(c => c.MatriculaId)
                 .NotEqual(Guid.Empty)
-                .WithMessage("Id da matricula inválido");
+                .WithMessage("Id da matrícula inválido.");
         }
     }
 }
