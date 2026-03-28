@@ -17,7 +17,7 @@ namespace PlataformaEducacao.GestaoAluno.Application.Services
             _bus = bus;
             _serviceProvider = serviceProvider;
         }
-        
+
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             SetSubscribers();
@@ -33,37 +33,34 @@ namespace PlataformaEducacao.GestaoAluno.Application.Services
                async request => await FinalizarMatricula(request));
         }
 
-
         private async Task RecusarMatricula(MatriculaPagamentoRecusadoIntegrationEvent message)
         {
-            using (var scope = _serviceProvider.CreateScope())
-            {
-                var _alunoRepository = scope.ServiceProvider.GetRequiredService<IAlunoRepository>();
+            using var scope = _serviceProvider.CreateScope();
 
-                var matricula = await _alunoRepository.ObterMatriculaComAlunoPorId(message.MatriculaId, default);
-                matricula!.Desativar();                
+            var _alunoRepository = scope.ServiceProvider.GetRequiredService<IAlunoRepository>();
 
-                if (!await _alunoRepository.UnitOfWork.Commit())
-                {
-                    throw new DomainException($"Problemas ao cancelar a matricula {message.MatriculaId}");
-                }
-            }
+            var matricula = await _alunoRepository.ObterMatriculaComAlunoPorId(message.MatriculaId, default)
+                ?? throw new DomainException($"Matrícula {message.MatriculaId} não encontrada.");
+
+            matricula.Aluno.RecusarPagamentoMatricula(matricula);
+
+            if (await _alunoRepository.UnitOfWork.Commit() is false)
+                throw new DomainException($"Problemas ao cancelar a matrícula {message.MatriculaId}");
         }
 
         private async Task FinalizarMatricula(MatriculaPagamentoRealizadoIntegrationEvent message)
         {
-            using (var scope = _serviceProvider.CreateScope())
-            {
-                var _alunoRepository = scope.ServiceProvider.GetRequiredService<IAlunoRepository>();
+            using var scope = _serviceProvider.CreateScope();
 
-                var matricula = await _alunoRepository.ObterMatriculaComAlunoPorId(message.MatriculaId, default);
-                matricula!.Ativar();
+            var _alunoRepository = scope.ServiceProvider.GetRequiredService<IAlunoRepository>();
 
-                if (!await _alunoRepository.UnitOfWork.Commit())
-                {
-                    throw new DomainException($"Problemas ao ativar a matricula {message.MatriculaId}");
-                }
-            }
+            var matricula = await _alunoRepository.ObterMatriculaComAlunoPorId(message.MatriculaId, default)
+                ?? throw new DomainException($"Matrícula {message.MatriculaId} não encontrada.");
+
+            matricula.Aluno.ConcluirPagamentoMatricula(matricula);
+
+            if (await _alunoRepository.UnitOfWork.Commit() is false)
+                throw new DomainException($"Problemas ao ativar a matricula {message.MatriculaId}");
         }
     }
 }

@@ -1,5 +1,4 @@
-﻿
-using PlataformaEducacao.Core;
+﻿using PlataformaEducacao.Core;
 using PlataformaEducacao.Core.DomainObjects;
 
 namespace PlataformaEducacao.GestaoAluno.Domain
@@ -37,7 +36,7 @@ namespace PlataformaEducacao.GestaoAluno.Domain
         {
             // Verifica se o aluno já possui uma matrícula para o mesmo curso
             if (MatriculaExistente(matricula))
-                throw new DomainException("Aluno já matriculado no curso.");
+                throw new DomainException($"Aluno {Id} já matriculado no curso {matricula.CursoId}.");
 
             // Associa a matrícula ao aluno
             matricula.AssociarAluno(Id);
@@ -57,17 +56,17 @@ namespace PlataformaEducacao.GestaoAluno.Domain
         public void RecusarPagamentoMatricula(Matricula matricula)
         {
             if (MatriculaExistente(matricula) is false)
-                throw new DomainException("Matricula não encontrada para o aluno.");
+                throw new DomainException($"Matricula {matricula.Id} não encontrada para o aluno {Id}.");
 
-            matricula.RecusarPagamento();
+            matricula.Recusar();
         }
 
         public void ConcluirPagamentoMatricula(Matricula matricula)
         {
             if (MatriculaExistente(matricula) is false)
-                throw new DomainException("Matricula não encontrada para o aluno.");
+                throw new DomainException($"Matricula {matricula.Id} não encontrada para o aluno {Id}.");
 
-            matricula.ConcluirPagamento();
+            matricula.Ativar();
         }
     }
 }
