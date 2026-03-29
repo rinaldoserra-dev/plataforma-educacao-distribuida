@@ -28,7 +28,7 @@ namespace PlataformaEducacao.GestaoAluno.Domain
 
         protected void Validar()
         {
-            Validacoes.ValidarSeVazio(Id, "O aluno id é obrigatório.");
+            Validacoes.ValidarSeVazio(Id, "O id do aluno é obrigatório.");
             Validacoes.ValidarSeVazio(Nome, "O nome do aluno é obrigatório.");
         }
 

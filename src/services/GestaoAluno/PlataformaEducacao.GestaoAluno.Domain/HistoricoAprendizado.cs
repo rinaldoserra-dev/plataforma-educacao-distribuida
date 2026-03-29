@@ -13,7 +13,7 @@ namespace PlataformaEducacao.GestaoAluno.Domain
 
         public static class HistoricoAprendizadoFactory
         {
-            public static HistoricoAprendizado PendentePagamento(int totalAulasCurso)
+            public static HistoricoAprendizado CriarInicial(int totalAulasCurso)
             {
                 var historico = new HistoricoAprendizado
                 {
@@ -26,7 +26,8 @@ namespace PlataformaEducacao.GestaoAluno.Domain
                 historico.Validar();
                 return historico;
             }
-            public static HistoricoAprendizado Progresso(int totalAulasCurso, double progressoGeral)
+
+            public static HistoricoAprendizado CriarEmAndamento(int totalAulasCurso, double progressoGeral)
             {
                 var historico = new HistoricoAprendizado
                 {
@@ -39,7 +40,8 @@ namespace PlataformaEducacao.GestaoAluno.Domain
                 historico.Validar();
                 return historico;
             }
-            public static HistoricoAprendizado FinalizarCurso(int totalAulasCurso, double progressoGeral)
+
+            public static HistoricoAprendizado CriarFinalizado(int totalAulasCurso, double progressoGeral)
             {
                 var historico = new HistoricoAprendizado
                 {
@@ -56,7 +58,7 @@ namespace PlataformaEducacao.GestaoAluno.Domain
 
         protected void Validar()
         {
-            Validacoes.ValidarSeMenorOuIgualQue(TotalAulasCurso, 0, "O número de aulas do curso deve ser maior que zero");
+            Validacoes.ValidarSeMenorOuIgualQue(valor: TotalAulasCurso, minimo: 0, "O número de aulas do curso deve ser maior que zero.");
         }
     }
 }

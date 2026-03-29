@@ -31,7 +31,7 @@ namespace PlataformaEducacao.GestaoAluno.Domain
             Valor = valor;
             DataMatricula = DateTime.Now;
             SituacaoMatricula = SituacaoMatricula.PendentePagamento;
-            HistoricoAprendizado = HistoricoAprendizado.HistoricoAprendizadoFactory.PendentePagamento(totalAulasCurso);
+            HistoricoAprendizado = HistoricoAprendizado.HistoricoAprendizadoFactory.CriarInicial(totalAulasCurso);
             Certificado = null;
             _progressoAulas = [];
 
@@ -103,7 +103,7 @@ namespace PlataformaEducacao.GestaoAluno.Domain
 
             double novoProgresso = (double)aulasConcluidas / totalAulasCurso * 100;
 
-            HistoricoAprendizado = HistoricoAprendizado.HistoricoAprendizadoFactory.Progresso(totalAulasCurso, novoProgresso);
+            HistoricoAprendizado = HistoricoAprendizado.HistoricoAprendizadoFactory.CriarEmAndamento(totalAulasCurso, novoProgresso);
         }
 
         public void FinalizarCurso()
@@ -122,7 +122,7 @@ namespace PlataformaEducacao.GestaoAluno.Domain
 
             double progresso = HistoricoAprendizado.ProgressoGeralCurso;
 
-            HistoricoAprendizado = HistoricoAprendizado.HistoricoAprendizadoFactory.FinalizarCurso(totalAulasCurso, progresso);
+            HistoricoAprendizado = HistoricoAprendizado.HistoricoAprendizadoFactory.CriarFinalizado(totalAulasCurso, progresso);
 
             AdicionarEvento(new CursoFinalizadoEvent(Id));
         }
@@ -152,7 +152,7 @@ namespace PlataformaEducacao.GestaoAluno.Domain
                     AlunoId = aluno.Id,
                     NomeCurso = nomeCurso,
                     CursoId = cursoId,
-                    HistoricoAprendizado = HistoricoAprendizado.HistoricoAprendizadoFactory.Progresso(totalAulasCurso, 0),
+                    HistoricoAprendizado = HistoricoAprendizado.HistoricoAprendizadoFactory.CriarEmAndamento(totalAulasCurso, 0),
                     SituacaoMatricula = SituacaoMatricula.Ativa,
                     DataMatricula = DateTime.Now,
                     Valor = valor
@@ -171,7 +171,7 @@ namespace PlataformaEducacao.GestaoAluno.Domain
                     AlunoId = aluno.Id,
                     NomeCurso = nomeCurso,
                     CursoId = cursoId,
-                    HistoricoAprendizado = HistoricoAprendizado.HistoricoAprendizadoFactory.Progresso(totalAulasCurso, 100),
+                    HistoricoAprendizado = HistoricoAprendizado.HistoricoAprendizadoFactory.CriarEmAndamento(totalAulasCurso, 100),
                     SituacaoMatricula = SituacaoMatricula.Ativa,
                     DataMatricula = DateTime.Now,
                     Valor = valor
@@ -192,7 +192,7 @@ namespace PlataformaEducacao.GestaoAluno.Domain
                     AlunoId = aluno.Id,
                     NomeCurso = nomeCurso,
                     CursoId = cursoId,
-                    HistoricoAprendizado = HistoricoAprendizado.HistoricoAprendizadoFactory.Progresso(totalAulasCurso, 0),
+                    HistoricoAprendizado = HistoricoAprendizado.HistoricoAprendizadoFactory.CriarEmAndamento(totalAulasCurso, 0),
                     SituacaoMatricula = SituacaoMatricula.ProcessoPagamento,
                     DataMatricula = DateTime.Now,
                     Valor = valor

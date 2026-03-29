@@ -31,7 +31,7 @@ namespace PlataformaEducacao.GestaoAluno.Domain
 
         public static class CertificadoFactory
         {
-            public static Certificado CreateCompleto(Matricula matricula, string codigoVerificacao)
+            public static Certificado CriarCompleto(Matricula matricula, string codigoVerificacao)
             {
                 var certificado = new Certificado
                 {

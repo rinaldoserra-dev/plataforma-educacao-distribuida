@@ -2,7 +2,7 @@ using PlataformaEducacao.Core.DomainObjects;
 
 namespace PlataformaEducacao.GestaoAluno.Domain.Tests
 {
-    public class CertificadoTests
+    public class CertificadoTest
     {
         [Fact(DisplayName = "Criar certificado com matriculaId válido deve gerar código")]
         [Trait("Categoria", "Gestao Aluno - Certificado")]
@@ -27,16 +27,16 @@ namespace PlataformaEducacao.GestaoAluno.Domain.Tests
             Assert.Throws<DomainException>(() => new Certificado(Guid.Empty));
         }
 
-        [Fact(DisplayName = "CertificadoFactory CreateCompleto com dados válidos deve criar certificado completo")]
+        [Fact(DisplayName = "CriarCompleto com dados válidos deve criar certificado completo")]
         [Trait("Categoria", "Gestao Aluno - Certificado")]
-        public void CreateCompleto_ComMatriculaECodigoValido_DeveCriar()
+        public void CriarCompleto_ComMatriculaECodigoValido_DeveCriar()
         {
             // Arrange
             var matricula = new Matricula(Guid.NewGuid(), nomeCurso: "Curso Teste", totalAulasCurso: 5, valor: 100m);
             var codigo = "ABC-123";
 
             // Act
-            var certificado = Certificado.CertificadoFactory.CreateCompleto(matricula, codigo);
+            var certificado = Certificado.CertificadoFactory.CriarCompleto(matricula, codigo);
 
             // Assert
             Assert.Equal(matricula.Id, certificado.MatriculaId);
@@ -44,15 +44,15 @@ namespace PlataformaEducacao.GestaoAluno.Domain.Tests
             Assert.Equal(codigo, certificado.CodigoVerificacao);
         }
 
-        [Fact(DisplayName = "CertificadoFactory CreateCompleto com código vazio deve lançar DomainException")]
+        [Fact(DisplayName = "CriarCompleto com código vazio deve lançar DomainException")]
         [Trait("Categoria", "Gestao Aluno - Certificado")]
-        public void CreateCompleto_ComCodigoVazio_DeveLancarDomainException()
+        public void CriarCompleto_ComCodigoVazio_DeveLancarDomainException()
         {
             // Arrange
             var matricula = new Matricula(Guid.NewGuid(), nomeCurso: "Curso Teste", totalAulasCurso: 5, valor: 100m);
 
             // Act & Assert
-            Assert.Throws<DomainException>(() => Certificado.CertificadoFactory.CreateCompleto(matricula, string.Empty));
+            Assert.Throws<DomainException>(() => Certificado.CertificadoFactory.CriarCompleto(matricula, string.Empty));
         }
     }
 }
