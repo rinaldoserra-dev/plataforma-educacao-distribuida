@@ -51,7 +51,7 @@ namespace PlataformaEducacao.GestaoAluno.Domain
         public void Ativar()
         {
             if (EstaAtiva())
-                throw new DomainException("Matrícula já ativa.");
+                throw new DomainException("Matrícula ativa, não pode ser ativada novamente.");
 
             SituacaoMatricula = SituacaoMatricula.Ativa;
 
@@ -61,7 +61,7 @@ namespace PlataformaEducacao.GestaoAluno.Domain
         public void Recusar()
         {
             if (EstaAtiva())
-                throw new DomainException($"Matrícula {Id} já ativa, não pode ser recusada.");
+                throw new DomainException("Matrícula ativa, não pode ser recusada.");
 
             SituacaoMatricula = SituacaoMatricula.PendentePagamento;
         }
@@ -69,10 +69,10 @@ namespace PlataformaEducacao.GestaoAluno.Domain
         public void IniciarPagamento()
         {
             if (SituacaoMatricula == SituacaoMatricula.Ativa)
-                throw new DomainException($"Matrícula {Id} já paga.");
+                throw new DomainException("Matrícula paga, não pode iniciar pagamento novamente.");
 
             if (SituacaoMatricula == SituacaoMatricula.ProcessoPagamento)
-                throw new DomainException($"Matrícula {Id} já em processo de pagamento.");
+                throw new DomainException("Matrícula em processo de pagamento, não pode iniciar pagamento novamente.");
 
             SituacaoMatricula = SituacaoMatricula.ProcessoPagamento;
         }
@@ -85,10 +85,10 @@ namespace PlataformaEducacao.GestaoAluno.Domain
         public void RegistrarAula(ProgressoAula progressoAula)
         {
             if (EstaAtiva() is false)
-                throw new DomainException($"Matrícula {Id} pendente de pagamento.");
+                throw new DomainException("Não é permitido assistir aula antes do pagamento da matrícula.");
 
             if (AulaRealizada(progressoAula))
-                throw new DomainException($"Aula {progressoAula.AulaId} já realizada.");
+                throw new DomainException("Aula já realizada, não pode ser registrada novamente.");
 
             progressoAula.AssociarMatricula(Id);
             _progressoAulas.Add(progressoAula);
@@ -109,16 +109,16 @@ namespace PlataformaEducacao.GestaoAluno.Domain
         public void FinalizarCurso()
         {
             if (EstaAtiva() is false)
-                throw new DomainException($"Matrícula {Id} pendente de pagamento.");
+                throw new DomainException("Antes de finalizar curso é obrigatório realizar pagamento da matrícula.");
 
             int aulasConcluidas = _progressoAulas.Count;
             int totalAulasCurso = HistoricoAprendizado.TotalAulasCurso;
 
             if (HistoricoAprendizado.ProgressoGeralCurso < 100 || aulasConcluidas != totalAulasCurso)
-                throw new DomainException("Existem aulas ainda não assistidas.");
+                throw new DomainException("Para finalizar curso é necessário assistir todas as aulas.");
 
             if (HistoricoAprendizado.SituacaoCurso == SituacaoCurso.Concluido)
-                throw new DomainException($"Curso {CursoId} já finalizado.");
+                throw new DomainException("Curso já finalizado, não pode ser finalizado novamente.");
 
             double progresso = HistoricoAprendizado.ProgressoGeralCurso;
 
@@ -130,7 +130,7 @@ namespace PlataformaEducacao.GestaoAluno.Domain
         public void GerarCertificado()
         {
             if (HistoricoAprendizado.SituacaoCurso != SituacaoCurso.Concluido)
-                throw new DomainException($"Curso {CursoId} ainda não concluído.");
+                throw new DomainException("Para gerar certificado é necessário concluir o curso.");
 
             Certificado = new Certificado(Id);
         }
@@ -139,12 +139,12 @@ namespace PlataformaEducacao.GestaoAluno.Domain
         {
             Validacoes.ValidarSeVazio(CursoId, "O id do curso é obrigatório.");
             Validacoes.ValidarSeVazio(NomeCurso, "O nome do curso é obrigatório.");
-            Validacoes.ValidarSeMenorOuIgualQue(Valor, 0, "O valor do curso deve ser maior que 0.");
+            Validacoes.ValidarSeMenorOuIgualQue(Valor, 0, "O valor do curso deve ser maior que zero.");
         }
 
         public static class MatriculaFactory
         {
-            public static Matricula GerarMatriculaPagamentoAprovado(Guid cursoId, string nomeCurso, int totalAulasCurso, decimal valor, Aluno aluno)
+            public static Matricula CriarComPagamentoAprovado(Guid cursoId, string nomeCurso, int totalAulasCurso, decimal valor, Aluno aluno)
             {
                 var matricula = new Matricula
                 {
@@ -152,7 +152,7 @@ namespace PlataformaEducacao.GestaoAluno.Domain
                     AlunoId = aluno.Id,
                     NomeCurso = nomeCurso,
                     CursoId = cursoId,
-                    HistoricoAprendizado = HistoricoAprendizado.HistoricoAprendizadoFactory.CriarEmAndamento(totalAulasCurso, 0),
+                    HistoricoAprendizado = HistoricoAprendizado.HistoricoAprendizadoFactory.CriarEmAndamento(totalAulasCurso, progressoGeral: 0),
                     SituacaoMatricula = SituacaoMatricula.Ativa,
                     DataMatricula = DateTime.Now,
                     Valor = valor
@@ -163,7 +163,7 @@ namespace PlataformaEducacao.GestaoAluno.Domain
                 return matricula;
             }
 
-            public static Matricula GerarMatriculaCursoFinalizado(Guid cursoId, string nomeCurso, int totalAulasCurso, decimal valor, Aluno aluno)
+            public static Matricula CriarComCursoFinalizado(Guid cursoId, string nomeCurso, int totalAulasCurso, decimal valor, Aluno aluno)
             {
                 var matricula = new Matricula
                 {
@@ -171,7 +171,7 @@ namespace PlataformaEducacao.GestaoAluno.Domain
                     AlunoId = aluno.Id,
                     NomeCurso = nomeCurso,
                     CursoId = cursoId,
-                    HistoricoAprendizado = HistoricoAprendizado.HistoricoAprendizadoFactory.CriarEmAndamento(totalAulasCurso, 100),
+                    HistoricoAprendizado = HistoricoAprendizado.HistoricoAprendizadoFactory.CriarEmAndamento(totalAulasCurso, progressoGeral: 100),
                     SituacaoMatricula = SituacaoMatricula.Ativa,
                     DataMatricula = DateTime.Now,
                     Valor = valor
@@ -184,7 +184,7 @@ namespace PlataformaEducacao.GestaoAluno.Domain
                 return matricula;
             }
 
-            public static Matricula GerarMatriculaPagamentoProcessamento(Guid cursoId, string nomeCurso, int totalAulasCurso, decimal valor, Aluno aluno)
+            public static Matricula CriarComPagamentoEmProcessamento(Guid cursoId, string nomeCurso, int totalAulasCurso, decimal valor, Aluno aluno)
             {
                 var matricula = new Matricula
                 {
@@ -192,7 +192,7 @@ namespace PlataformaEducacao.GestaoAluno.Domain
                     AlunoId = aluno.Id,
                     NomeCurso = nomeCurso,
                     CursoId = cursoId,
-                    HistoricoAprendizado = HistoricoAprendizado.HistoricoAprendizadoFactory.CriarEmAndamento(totalAulasCurso, 0),
+                    HistoricoAprendizado = HistoricoAprendizado.HistoricoAprendizadoFactory.CriarEmAndamento(totalAulasCurso, progressoGeral: 0),
                     SituacaoMatricula = SituacaoMatricula.ProcessoPagamento,
                     DataMatricula = DateTime.Now,
                     Valor = valor
