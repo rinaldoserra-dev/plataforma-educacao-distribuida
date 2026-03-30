@@ -1,20 +1,43 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.EntityFrameworkCore;
 using PlataformaEducacao.GestaoFinanceira.Api.Data;
 using PlataformaEducacao.GestaoFinanceira.Business.Facade;
 using PlataformaEducacao.WebApi.Core.Identidade;
+using System.Text.Json.Serialization;
 
 namespace PlataformaEducacao.GestaoFinanceira.Api.Configuration
 {
     public static class ApiConfig
     {
-        public static void AddApiConfiguration(this IServiceCollection services, IConfiguration configuration)
+        public static IHostBuilder ConfigureAppSettings(this IHostBuilder host)
         {
-            services.AddDbContext<PagamentosContext>(options =>
-                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+            host.ConfigureAppConfiguration((ctx, builder) =>
+            {
+                var enviroment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+                builder.SetBasePath(Directory.GetCurrentDirectory());
+                builder.AddJsonFile("appsettings.json", true, true);
+                builder.AddJsonFile($"appsettings.{enviroment}.json", true, true);
+
+                builder.AddEnvironmentVariables();
+            });
+
+            return host;
+        }
+        public static IServiceCollection AddApiConfiguration(this IServiceCollection services)
+        {
+            services.AddControllers()
+                 .ConfigureApiBehaviorOptions(opt => opt.SuppressModelStateInvalidFilter = true)
+                 .AddJsonOptions(option =>
+                 {
+                     option.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+                     option.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+                 });
+            services.Configure<ForwardedHeadersOptions>(options =>
+            {
+                options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+            });
 
             services.AddControllers();
-
-            services.Configure<PagamentoConfig>(configuration.GetSection("PagamentoConfig"));
 
             services.AddCors(options =>
             {
@@ -25,7 +48,10 @@ namespace PlataformaEducacao.GestaoFinanceira.Api.Configuration
                             .AllowAnyMethod()
                             .AllowAnyHeader());
             });
+
+            return services;
         }
+
 
         public static void UseApiConfiguration(this IApplicationBuilder app, IWebHostEnvironment env)
         {

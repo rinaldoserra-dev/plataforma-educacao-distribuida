@@ -1,21 +1,29 @@
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
-using PlataformaEducacao.GestaoFinanceira.Api;
+using PlataformaEducacao.GestaoFinanceira.Api.Configuration;
+using PlataformaEducacao.GestaoFinanceira.Business.Facade;
+using PlataformaEducacao.WebApi.Core.Identidade;
 
-namespace PlataformaEducacao.Pagamentos.API
-{
-    public class Program
-    {
-        public static void Main(string[] args)
-        {
-            CreateHostBuilder(args).Build().Run();
-        }
+var builder = WebApplication.CreateBuilder(args);
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder.UseStartup<Startup>();
-                });
-    }
-}
+builder.Host.ConfigureAppSettings();
+
+builder.Services
+    .AddApiConfiguration()
+    .AddSwaggerConfiguration()
+    .AddDbContextConfig(builder.Configuration, builder.Environment)
+    .AddJwtConfiguration(builder.Configuration)
+    .AddMessageBusConfiguration(builder.Configuration)
+    .RegisterServices();
+
+builder.Services.Configure<PagamentoConfig>(
+    builder.Configuration.GetSection("PagamentoConfig"));
+
+var app = builder.Build();
+
+app.UseSwaggerConfiguration()
+   .UseApiConfiguration(app.Environment);
+
+app.UseDbMigrationHelper();
+
+app.Run();
+
+public partial class Program { }

@@ -1,56 +1,59 @@
-﻿using Microsoft.OpenApi.Models;
+﻿using Microsoft.CodeAnalysis.Options;
+using Microsoft.OpenApi.Models;
 
 namespace PlataformaEducacao.GestaoFinanceira.Api.Configuration
 {
     public static class SwaggerConfig
     {
-        public static void AddSwaggerConfiguration(this IServiceCollection services)
+        public static IServiceCollection AddSwaggerConfiguration(this IServiceCollection services)
         {
-            services.AddSwaggerGen(c =>
+            services.AddSwaggerGen(option =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo()
+                option.SwaggerDoc("v1", new OpenApiInfo()
                 {
-                    Title = "Plataforma Educaçao Pagamentos API",
+                    Title = "Sistema de uma Plataforma de Educação Gestão Pagamento API",
                     Description = "Esta API faz parte do sistema de uma Plataforma de Educação.",
                     Contact = new OpenApiContact { Name = "MBA - Desenvolvedor.io" },
-                    License = new OpenApiLicense() { Name = "MIT", Url = new Uri("https://opensource.org/licenses/MIT") }
+                    License = new OpenApiLicense { Name = "MIT", Url = new Uri("https://opensource.org/licenses/MIT") }
                 });
-
-                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
                 {
-                    Description = "Insira o token JWT desta maneira: Bearer {seu token}",
-                    Name = "Authorization",
-                    Scheme = "Bearer",
-                    BearerFormat = "JWT",
                     In = ParameterLocation.Header,
-                    Type = SecuritySchemeType.ApiKey
+                    Description = "Favor inserir um token válido",
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.Http,
+                    BearerFormat = "JWT",
+                    Scheme = "Bearer"
                 });
-
-                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                option.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
                     {
                         new OpenApiSecurityScheme
                         {
                             Reference = new OpenApiReference
                             {
-                                Type = ReferenceType.SecurityScheme,
-                                Id = "Bearer"
+                                Type=ReferenceType.SecurityScheme,
+                                Id="Bearer"
                             }
                         },
-                        new string[] {}
+                        new string[]{}
                     }
                 });
 
             });
+            return services;
         }
 
-        public static void UseSwaggerConfiguration(this IApplicationBuilder app)
+        public static IApplicationBuilder UseSwaggerConfiguration(this IApplicationBuilder app)
         {
             app.UseSwagger();
-            app.UseSwaggerUI(c =>
+            app.UseSwaggerUI(o =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+                o.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
             });
+
+
+            return app;
         }
     }
 }
