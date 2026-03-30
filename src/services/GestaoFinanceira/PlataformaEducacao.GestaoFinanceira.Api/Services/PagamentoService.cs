@@ -1,8 +1,11 @@
 ﻿using FluentValidation.Results;
 using PlataformaEducacao.Core.DomainObjects;
 using PlataformaEducacao.Core.Messages.Integration;
+using PlataformaEducacao.GestaoFinanceira.Api.Models.Response;
 using PlataformaEducacao.GestaoFinanceira.Business.Facade;
 using PlataformaEducacao.GestaoFinanceira.Business.Models;
+using PlataformaEducacao.MessageBus;
+using System.Net;
 
 namespace PlataformaEducacao.GestaoFinanceira.Api.Services
 {
@@ -10,23 +13,29 @@ namespace PlataformaEducacao.GestaoFinanceira.Api.Services
     {
         private readonly IPagamentoCartaoCreditoFacade _pagamentoFacade;
         private readonly IPagamentoRepository _pagamentoRepository;
+        private readonly IMessageBus _bus;
 
         public PagamentoService(IPagamentoCartaoCreditoFacade pagamentoFacade,
-                                IPagamentoRepository pagamentoRepository)
+                                IPagamentoRepository pagamentoRepository,
+                                IMessageBus bus)
         {
             _pagamentoFacade = pagamentoFacade;
             _pagamentoRepository = pagamentoRepository;
+            _bus = bus;
         }
 
-        public async Task<ResponseMessage> AutorizarPagamento(Pagamento pagamento)
+        public async Task<ResponseMessage> AutorizarPagamento(Pagamento pagamento, CancellationToken cancellationToken)
         {
             var transacao = await _pagamentoFacade.AutorizarPagamento(pagamento);
             var validationResult = new ValidationResult();
 
             if (transacao.Status != StatusTransacao.Autorizado)
             {
+                
                 validationResult.Errors.Add(new ValidationFailure("Pagamento",
                         "Pagamento recusado, entre em contato com a sua operadora de cartão"));
+
+                await _bus.PublishAsync(new MatriculaPagamentoRecusadoIntegrationEvent(pagamento.MatriculaId));
 
                 return new ResponseMessage(validationResult);
             }
@@ -36,8 +45,22 @@ namespace PlataformaEducacao.GestaoFinanceira.Api.Services
 
             if (!await _pagamentoRepository.UnitOfWork.Commit())
             {
-                validationResult.Errors.Add(new ValidationFailure("Pagamento",
-                    "Houve um erro ao realizar o pagamento."));
+                validationResult.Errors.Add(new ValidationFailure("Pagamento",  "Houve um erro ao realizar o pagamento."));
+
+                // Cancelar pagamento no gateway
+                await CancelarPagamento(pagamento.MatriculaId);
+
+                return new ResponseMessage(validationResult);
+            }
+
+            try
+            {
+                await _bus.PublishAsync(new MatriculaPagamentoRealizadoIntegrationEvent(pagamento.MatriculaId));
+            }
+            catch (Exception ex)
+            {
+                // log
+                validationResult.Errors.Add(new ValidationFailure("Pagamento", "Pagamento autorizado, mas houve falha ao notificar os demais serviços."));
 
                 // Cancelar pagamento no gateway
                 await CancelarPagamento(pagamento.MatriculaId);
@@ -50,7 +73,7 @@ namespace PlataformaEducacao.GestaoFinanceira.Api.Services
 
         public async Task<ResponseMessage> CapturarPagamento(Guid matriculaId)
         {
-            var transacoes = await _pagamentoRepository.ObterTransacaoesPorMatriculaId(matriculaId);
+            var transacoes = await _pagamentoRepository.ObterTransacoesPorMatriculaId(matriculaId);
             var transacaoAutorizada = transacoes?.FirstOrDefault(t => t.Status == StatusTransacao.Autorizado);
             var validationResult = new ValidationResult();
 
@@ -82,7 +105,7 @@ namespace PlataformaEducacao.GestaoFinanceira.Api.Services
 
         public async Task<ResponseMessage> CancelarPagamento(Guid matriculaId)
         {
-            var transacoes = await _pagamentoRepository.ObterTransacaoesPorMatriculaId(matriculaId);
+            var transacoes = await _pagamentoRepository.ObterTransacoesPorMatriculaId(matriculaId);
             var transacaoAutorizada = transacoes?.FirstOrDefault(t => t.Status == StatusTransacao.Autorizado);
             var validationResult = new ValidationResult();
 
@@ -111,5 +134,24 @@ namespace PlataformaEducacao.GestaoFinanceira.Api.Services
 
             return new ResponseMessage(validationResult);
         }
+
+        public async Task<PagamentoStatusResponse?> ObterStatusPorMatricula(Guid matriculaId, Guid usuarioId)
+        {
+            var pagamento = await _pagamentoRepository.ObterPagamentoPorMatriculaId(matriculaId, usuarioId);
+
+            if (pagamento == null)
+                return null;
+
+            var ultimaTransacao = pagamento.Transacoes
+                .OrderByDescending(t => t.DataTransacao ?? DateTime.MinValue)
+                .FirstOrDefault();
+
+            return new PagamentoStatusResponse
+            {
+                MatriculaId = pagamento.MatriculaId,
+                Status = ultimaTransacao?.Status.ToString() ?? "Sem transações"
+            };
+        }
+
     }
 }

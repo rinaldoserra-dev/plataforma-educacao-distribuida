@@ -11,6 +11,8 @@ namespace PlataformaEducacao.GestaoFinanceira.Business.Models
             Transacoes = new List<Transacao>();
         }
 
+        public Guid AlunoId { get; set; }
+
         public Guid MatriculaId { get; set; }
 
         public TipoPagamento TipoPagamento { get; set; }

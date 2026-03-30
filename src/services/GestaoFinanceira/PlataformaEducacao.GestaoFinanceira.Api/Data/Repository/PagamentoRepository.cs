@@ -33,12 +33,21 @@ namespace PlataformaEducacao.GestaoFinanceira.Api.Data.Repository
             return await _context.Pagamentos.AsNoTracking()
                 .FirstOrDefaultAsync(p => p.MatriculaId == matriculaId);
         }
+        public async Task<Pagamento?> ObterPagamentoPorMatriculaId(Guid matriculaId, Guid usuarioId)
+        {
+            return await _context.Pagamentos
+                .AsNoTracking()
+                .Include(p => p.Transacoes)
+                .FirstOrDefaultAsync(p => p.MatriculaId == matriculaId && p.AlunoId == usuarioId);
+        }
 
-        public async Task<IEnumerable<Transacao>> ObterTransacaoesPorMatriculaId(Guid matriculaId)
+        public async Task<IEnumerable<Transacao>> ObterTransacoesPorMatriculaId(Guid matriculaId)
         {
             return await _context.Transacoes.AsNoTracking()
                 .Where(t => t.Pagamento.MatriculaId == matriculaId).ToListAsync();
         }
+
+
 
         public void Dispose()
         {

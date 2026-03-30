@@ -12,6 +12,9 @@ namespace PlataformaEducacao.GestaoFinanceira.Api.Data.Mappings
 
             builder.Ignore(c => c.DadosCartao);
 
+            builder.Property(x => x.Valor)
+                .HasPrecision(18, 2);
+
             // 1 : N => Pagamento : Transacao
             builder.HasMany(c => c.Transacoes)
                 .WithOne(c => c.Pagamento)
